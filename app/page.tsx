@@ -40,16 +40,13 @@ const diagnostics = [
   { label: 'Security', value: 'Locked', icon: Lock },
 ]
 
-function fakeAiResponse(module: string, command: string) {
-  return `JARVIS response: I processed "${command}" inside the ${module} module. Next step: review the highlighted task stack, then use Export Report or Create Task to continue the workflow.`
-}
-
 export default function HomePage() {
   const [time, setTime] = useState('')
   const [active, setActive] = useState(modules[0])
   const [command, setCommand] = useState('')
-  const [aiResponse, setAiResponse] = useState('Select a module or run a command. Responses will appear here.')
-  const [logs, setLogs] = useState(['System loaded', 'Interface visible', 'Modules online', 'Command input ready'])
+  const [aiResponse, setAiResponse] = useState('Select a module or ask a question. Real AI responses will appear here once OPENAI_API_KEY is set in Vercel.')
+  const [logs, setLogs] = useState(['System loaded', 'Interface visible', 'Modules online', 'AI route connected'])
+  const [isThinking, setIsThinking] = useState(false)
 
   useEffect(() => {
     const tick = () => setTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }))
@@ -58,17 +55,36 @@ export default function HomePage() {
     return () => clearInterval(timer)
   }, [])
 
-  function selectModule(module: typeof modules[number]) {
-    setActive(module)
-    setAiResponse(`JARVIS response: ${module.label} module opened. I found ${module.value} active items. Recommended focus: ${module.tasks[0]}.`)
-    setLogs((current) => [`Opened ${module.label} module`, ...current].slice(0, 8))
+  async function askJarvis(message: string) {
+    const clean = message.trim() || `Analyze ${active.label}`
+    setIsThinking(true)
+    setAiResponse('JARVIS is thinking...')
+    setLogs((current) => [`Sent to AI: ${clean}`, ...current].slice(0, 8))
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: clean, module: active.label }),
+      })
+
+      const data = await response.json()
+      const reply = data?.reply || 'No AI response returned.'
+      setAiResponse(reply)
+      setLogs((current) => [`AI responded in ${active.label}`, ...current].slice(0, 8))
+    } catch {
+      setAiResponse('The AI request failed. Check Vercel logs and confirm the /api/chat route deployed successfully.')
+      setLogs((current) => ['AI request failed', ...current].slice(0, 8))
+    } finally {
+      setIsThinking(false)
+      setCommand('')
+    }
   }
 
-  function runCommand(text: string) {
-    const clean = text.trim() || `Analyze ${active.label}`
-    setAiResponse(fakeAiResponse(active.label, clean))
-    setLogs((current) => [`${active.label}: ${clean}`, 'Command executed successfully', ...current].slice(0, 8))
-    setCommand('')
+  function selectModule(module: typeof modules[number]) {
+    setActive(module)
+    setAiResponse(`${module.label} module selected. Ask JARVIS what to do next, or press one of the task/action buttons.`)
+    setLogs((current) => [`Opened ${module.label} module`, ...current].slice(0, 8))
   }
 
   return (
@@ -78,11 +94,11 @@ export default function HomePage() {
           <div className="brand-block">
             <p className="eyebrow">Personal AI Command System</p>
             <h1>JARVIS Command Centre</h1>
-            <p>Professional operating dashboard for projects, systems, training, media, notes, and execution.</p>
+            <p>Professional operating dashboard with real AI chat through your Next.js API route.</p>
           </div>
           <div className="time-card">
             <span>{time}</span>
-            <small>Operational</small>
+            <small>{isThinking ? 'Thinking' : 'Operational'}</small>
           </div>
         </header>
 
@@ -91,7 +107,7 @@ export default function HomePage() {
             <div className="hud-panel operator-card">
               <p className="eyebrow">Operator</p>
               <h2>Daniel OS</h2>
-              <p>Central control shell. Select a module, execute commands, and monitor system state.</p>
+              <p>Select a module, ask a question, or press an action. Commands now call the real AI route.</p>
             </div>
 
             <div className="diagnostic-grid">
@@ -130,7 +146,7 @@ export default function HomePage() {
                   <Sparkles size={50} />
                   <small>Neural Core</small>
                   <strong>JARVIS</strong>
-                  <span>{active.label} online</span>
+                  <span>{isThinking ? 'Processing command...' : `${active.label} online`}</span>
                 </div>
               </div>
             </div>
@@ -162,18 +178,18 @@ export default function HomePage() {
               <p>{active.text}</p>
               <div className="metric-card"><small>Current Metric</small><strong>{active.value}</strong></div>
               <div className="task-list">
-                {active.tasks.map((task) => <button key={task} onClick={() => runCommand(`Work on ${task}`)} className="task-item"><CheckCircle2 size={18} />{task}</button>)}
+                {active.tasks.map((task) => <button key={task} onClick={() => askJarvis(`Give me a practical action plan for: ${task}`)} className="task-item"><CheckCircle2 size={18} />{task}</button>)}
               </div>
             </div>
 
             <div className="hud-panel command-panel">
-              <div className="command-input"><Search size={20} /><input value={command} onChange={(e) => setCommand(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && runCommand(command)} placeholder="Ask JARVIS anything..." /></div>
-              <button onClick={() => runCommand(command)}><Play size={18} />Execute Command</button>
+              <div className="command-input"><Search size={20} /><input value={command} onChange={(e) => setCommand(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && askJarvis(command)} placeholder="Ask JARVIS anything..." /></div>
+              <button disabled={isThinking} onClick={() => askJarvis(command)}><Play size={18} />{isThinking ? 'Thinking...' : 'Ask AI'}</button>
             </div>
 
             <div className="hud-panel action-panel">
               <div className="section-title"><Activity size={24} /><h3>Actions</h3></div>
-              {['Open module', 'Run analysis', 'Create task', 'Export report'].map((action) => <button key={action} onClick={() => runCommand(action)}>{action}</button>)}
+              {['Open module', 'Run analysis', 'Create task', 'Export report'].map((action) => <button key={action} onClick={() => askJarvis(`${action} for ${active.label}. Give me the actual next steps.`)}>{action}</button>)}
             </div>
           </aside>
         </section>
