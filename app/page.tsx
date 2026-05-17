@@ -1,27 +1,36 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
-import { Activity, BarChart3, CalendarDays, Camera, CheckCircle2, Cpu, Database, Dumbbell, FolderKanban, Inbox, Lock, NotebookPen, Play, Search, Server, ShieldCheck, Sparkles, TerminalSquare, Wifi, Zap } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import {
+  Activity,
+  CalendarDays,
+  Camera,
+  CheckCircle2,
+  Cpu,
+  Database,
+  Dumbbell,
+  FolderKanban,
+  Inbox,
+  Lock,
+  NotebookPen,
+  Play,
+  Search,
+  Server,
+  ShieldCheck,
+  Sparkles,
+  TerminalSquare,
+  Wifi,
+} from 'lucide-react'
 
-type Module = {
-  label: string
-  value: string
-  text: string
-  icon: any
-  accent: string
-  actions: string[]
-  tasks: string[]
-}
-
-const modules: Module[] = [
-  { label: 'Inbox', value: '24', text: 'Priority threads queued', icon: Inbox, accent: 'from-cyan-400 to-blue-500', actions: ['Open inbox queue', 'Review follow-ups', 'Draft response'], tasks: ['Sponsorship reply', 'Vercel deployment', 'Gear order follow-up'] },
-  { label: 'Calendar', value: '07', text: 'Events in command window', icon: CalendarDays, accent: 'from-sky-400 to-indigo-500', actions: ['View schedule', 'Add event', 'Plan week'], tasks: ['Lift block', 'KMHA check-in', 'Assignment window'] },
-  { label: 'Projects', value: '12', text: 'Active builds tracked', icon: FolderKanban, accent: 'from-emerald-400 to-cyan-500', actions: ['Open project board', 'Check GitHub', 'Deploy build'], tasks: ['CEO Command Centre', 'KMHA dashboard', 'Photo portfolio'] },
-  { label: 'Training', value: '18', text: 'Athlete systems online', icon: Dumbbell, accent: 'from-lime-400 to-emerald-500', actions: ['View plans', 'Create session', 'Check attendance'], tasks: ['Warm-up library', 'Testing dashboard', 'S&C templates'] },
-  { label: 'Media', value: '48', text: 'Content assets indexed', icon: Camera, accent: 'from-fuchsia-400 to-cyan-500', actions: ['Open gallery', 'Edit queue', 'Export assets'], tasks: ['Volleyball edits', 'Portfolio cover', 'Export queue'] },
-  { label: 'Notes', value: '36', text: 'Research files synced', icon: NotebookPen, accent: 'from-amber-300 to-orange-500', actions: ['Open notes', 'New idea', 'Search archive'], tasks: ['WHOOP pitch', 'Network setup', 'Lab notes'] },
-  { label: 'Systems', value: '09', text: 'Infrastructure nodes live', icon: Server, accent: 'from-cyan-300 to-emerald-400', actions: ['Check NAS', 'Open UniFi', 'Run diagnostics'], tasks: ['NAS online', 'UniFi switch', 'Vercel production'] },
-  { label: 'Security', value: 'OK', text: 'Access layer protected', icon: ShieldCheck, accent: 'from-red-400 to-orange-500', actions: ['Audit access', 'Lock system', 'Review logs'], tasks: ['GitHub access', 'Vercel auth', 'Private keys'] },
+const modules = [
+  { label: 'Inbox', value: '24', text: 'Priority messages and follow-ups', icon: Inbox, tasks: ['WHOOP email', 'Vercel notice', 'Order follow-up'] },
+  { label: 'Calendar', value: '07', text: 'Events and deadlines this week', icon: CalendarDays, tasks: ['Training block', 'KMHA session', 'School work'] },
+  { label: 'Projects', value: '12', text: 'Active websites and builds', icon: FolderKanban, tasks: ['CEO command centre', 'KMHA app', 'Portfolio'] },
+  { label: 'Training', value: '18', text: 'S&C plans and athlete systems', icon: Dumbbell, tasks: ['Warm-ups', 'Testing data', 'Team sessions'] },
+  { label: 'Media', value: '48', text: 'Photos, edits, and content assets', icon: Camera, tasks: ['Edit queue', 'Portfolio hero', 'Export set'] },
+  { label: 'Notes', value: '36', text: 'Research, ideas, and planning', icon: NotebookPen, tasks: ['WHOOP pitch', 'Network notes', 'Lab notes'] },
+  { label: 'Systems', value: '09', text: 'NAS, UniFi, GitHub, and Vercel', icon: Server, tasks: ['NAS check', 'UniFi switch', 'Deployment'] },
+  { label: 'Security', value: 'OK', text: 'Access, auth, and account protection', icon: ShieldCheck, tasks: ['GitHub access', 'Vercel auth', 'Private keys'] },
 ]
 
 const diagnostics = [
@@ -33,9 +42,9 @@ const diagnostics = [
 
 export default function HomePage() {
   const [time, setTime] = useState('')
-  const [active, setActive] = useState<Module>(modules[0])
+  const [active, setActive] = useState(modules[0])
   const [command, setCommand] = useState('')
-  const [logs, setLogs] = useState(['Core initialized', 'Project scan complete', 'Network stable', 'Assistant shell ready'])
+  const [logs, setLogs] = useState(['System loaded', 'Interface visible', 'Modules online', 'Command input ready'])
 
   useEffect(() => {
     const tick = () => setTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }))
@@ -44,63 +53,58 @@ export default function HomePage() {
     return () => clearInterval(timer)
   }, [])
 
-  const completion = useMemo(() => active.label === 'Security' ? 100 : Math.min(96, 52 + Number.parseInt(active.value) || 76), [active])
-
   function runCommand(text: string) {
-    const clean = text.trim()
-    if (!clean) return
+    const clean = text.trim() || `Analyze ${active.label}`
     setLogs((current) => [`${active.label}: ${clean}`, 'Command executed successfully', ...current].slice(0, 8))
     setCommand('')
   }
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#06101f] text-white">
-      <div className="fixed inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(34,211,238,0.26),transparent_28%),linear-gradient(135deg,#081426,#06101f_45%,#020617)]" />
-      <div className="fixed inset-0 bg-[linear-gradient(rgba(125,211,252,0.09)_1px,transparent_1px),linear-gradient(90deg,rgba(125,211,252,0.09)_1px,transparent_1px)] bg-[size:40px_40px] opacity-25" />
-
-      <section className="relative z-10 mx-auto min-h-screen max-w-[1760px] p-5">
-        <header className="mb-5 rounded-[28px] border border-cyan-300/25 bg-slate-950/80 p-5 shadow-[0_0_70px_rgba(34,211,238,0.22)] backdrop-blur-xl">
+    <main className="min-h-screen bg-[#07111f] text-white">
+      <div className="mx-auto max-w-[1700px] p-6">
+        <header className="mb-6 rounded-3xl border border-cyan-400/30 bg-[#101f33] p-6 shadow-2xl">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.45em] text-cyan-300">Personal AI Command System</p>
-              <h1 className="mt-2 text-4xl font-black tracking-tight md:text-6xl">JARVIS Command Centre</h1>
+              <p className="text-sm font-bold uppercase tracking-[0.35em] text-cyan-300">Personal AI Command System</p>
+              <h1 className="mt-2 text-4xl font-black md:text-6xl">JARVIS Command Centre</h1>
+              <p className="mt-3 text-slate-300">Readable, functional control panel for projects, systems, training, media, notes, and execution.</p>
             </div>
-            <div className="rounded-2xl border border-emerald-300/30 bg-emerald-400/10 px-5 py-3 text-right">
-              <p className="font-mono text-2xl font-black text-cyan-100">{time}</p>
-              <p className="text-xs font-bold uppercase tracking-[0.25em] text-emerald-300">Operational</p>
+            <div className="rounded-2xl border border-emerald-400/40 bg-emerald-400/10 p-4 text-left md:text-right">
+              <p className="font-mono text-3xl font-black text-cyan-100">{time}</p>
+              <p className="text-sm font-bold uppercase tracking-[0.25em] text-emerald-300">Operational</p>
             </div>
           </div>
         </header>
 
-        <div className="grid gap-5 xl:grid-cols-[330px_1fr_380px]">
-          <aside className="space-y-5">
-            <div className="rounded-[28px] border border-cyan-300/25 bg-slate-950/80 p-5 shadow-[0_0_60px_rgba(34,211,238,0.18)] backdrop-blur-xl">
-              <p className="text-xs font-black uppercase tracking-[0.35em] text-cyan-300">Operator</p>
+        <section className="grid gap-6 xl:grid-cols-[340px_1fr_380px]">
+          <aside className="space-y-6">
+            <div className="rounded-3xl border border-cyan-400/30 bg-[#101f33] p-6 shadow-xl">
+              <p className="text-sm font-bold uppercase tracking-[0.3em] text-cyan-300">Operator</p>
               <h2 className="mt-3 text-4xl font-black">Daniel OS</h2>
-              <p className="mt-2 text-sm text-slate-300">Central dashboard for projects, systems, training, media, notes, and execution.</p>
+              <p className="mt-3 text-slate-300">Central dashboard shell. Everything on this page is clickable and visible.</p>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-4">
               {diagnostics.map((item) => {
                 const Icon = item.icon
                 return (
-                  <div key={item.label} className="rounded-2xl border border-cyan-300/20 bg-slate-950/80 p-4 shadow-lg">
-                    <Icon className="h-5 w-5 text-emerald-300" />
-                    <p className="mt-4 text-[10px] uppercase tracking-[0.25em] text-cyan-300/75">{item.label}</p>
-                    <p className="mt-1 text-lg font-black text-white">{item.value}</p>
+                  <div key={item.label} className="rounded-2xl border border-cyan-400/25 bg-[#10253d] p-4">
+                    <Icon className="h-6 w-6 text-emerald-300" />
+                    <p className="mt-4 text-xs uppercase tracking-[0.25em] text-cyan-300">{item.label}</p>
+                    <p className="mt-1 text-xl font-black">{item.value}</p>
                   </div>
                 )
               })}
             </div>
 
-            <div className="rounded-[28px] border border-cyan-300/25 bg-slate-950/80 p-5 shadow-lg">
+            <div className="rounded-3xl border border-cyan-400/30 bg-[#101f33] p-6 shadow-xl">
               <div className="mb-4 flex items-center gap-3">
                 <TerminalSquare className="h-6 w-6 text-emerald-300" />
-                <h3 className="text-xl font-black">Command Feed</h3>
+                <h3 className="text-2xl font-black">Command Feed</h3>
               </div>
               <div className="space-y-3">
                 {logs.map((log, index) => (
-                  <div key={`${log}-${index}`} className="rounded-xl border border-cyan-300/15 bg-cyan-300/5 p-3 font-mono text-xs text-cyan-50">
+                  <div key={`${log}-${index}`} className="rounded-xl border border-cyan-400/20 bg-[#07111f] p-3 font-mono text-sm text-cyan-50">
                     <span className="text-emerald-300">›</span> {log}
                   </div>
                 ))}
@@ -108,88 +112,95 @@ export default function HomePage() {
             </div>
           </aside>
 
-          <section className="min-h-[760px] rounded-[36px] border border-cyan-300/25 bg-slate-950/80 p-6 shadow-[0_0_90px_rgba(34,211,238,0.24)] backdrop-blur-xl">
-            <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
-              <div className="relative min-h-[520px] overflow-hidden rounded-[32px] border border-cyan-300/20 bg-[#08182b] p-6">
-                <div className="absolute left-1/2 top-1/2 h-[560px] w-[560px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-cyan-300/15" />
-                <div className="absolute left-1/2 top-1/2 h-[410px] w-[410px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-emerald-300/20" />
-                <div className="absolute left-1/2 top-1/2 h-[260px] w-[260px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-300/25 blur-3xl" />
-                <div className="relative z-10 flex h-full min-h-[470px] items-center justify-center">
-                  <div className="flex h-72 w-72 flex-col items-center justify-center rounded-full border border-cyan-200/70 bg-[#06192a] text-center shadow-[0_0_120px_rgba(34,211,238,0.65),inset_0_0_70px_rgba(16,185,129,0.18)]">
+          <section className="rounded-[2rem] border border-cyan-400/30 bg-[#101f33] p-6 shadow-2xl">
+            <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+              <div className="relative min-h-[500px] overflow-hidden rounded-[2rem] border border-cyan-400/25 bg-[#08182b] p-6">
+                <div className="absolute left-1/2 top-1/2 h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-cyan-300/20" />
+                <div className="absolute left-1/2 top-1/2 h-[360px] w-[360px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-emerald-300/25" />
+                <div className="relative z-10 flex min-h-[450px] items-center justify-center">
+                  <div className="flex h-72 w-72 flex-col items-center justify-center rounded-full border border-cyan-200 bg-[#06243a] text-center shadow-[0_0_100px_rgba(34,211,238,0.55)]">
                     <Sparkles className="h-12 w-12 text-cyan-200" />
-                    <p className="mt-5 text-[10px] font-black uppercase tracking-[0.45em] text-emerald-300">Neural Core</p>
+                    <p className="mt-5 text-xs font-black uppercase tracking-[0.45em] text-emerald-300">Neural Core</p>
                     <h2 className="mt-2 text-5xl font-black">JARVIS</h2>
-                    <p className="mt-3 max-w-[190px] text-sm text-cyan-100/80">Ready for operator command.</p>
+                    <p className="mt-3 max-w-[200px] text-sm text-cyan-100">Ready for command.</p>
                   </div>
                 </div>
               </div>
 
-              <div className="rounded-[32px] border border-cyan-300/20 bg-[#08182b] p-5">
-                <p className="text-xs font-black uppercase tracking-[0.3em] text-emerald-300">Active Module</p>
+              <div className="rounded-[2rem] border border-cyan-400/25 bg-[#08182b] p-6">
+                <p className="text-sm font-bold uppercase tracking-[0.25em] text-emerald-300">Active Module</p>
                 <h2 className="mt-3 text-4xl font-black">{active.label}</h2>
-                <p className="mt-3 text-sm leading-6 text-slate-300">{active.text}</p>
-                <div className="mt-5 rounded-3xl border border-cyan-300/20 bg-black/30 p-5">
-                  <p className="text-xs uppercase tracking-[0.25em] text-cyan-300/80">Current Metric</p>
+                <p className="mt-3 text-slate-300">{active.text}</p>
+                <div className="mt-5 rounded-2xl border border-cyan-400/25 bg-[#07111f] p-5">
+                  <p className="text-xs uppercase tracking-[0.25em] text-cyan-300">Current Metric</p>
                   <p className="mt-2 text-6xl font-black">{active.value}</p>
                 </div>
-                <div className="mt-5">
-                  <div className="mb-2 flex justify-between text-xs text-slate-300"><span>Readiness</span><span>{completion}%</span></div>
-                  <div className="h-3 rounded-full bg-cyan-300/10"><div className="h-full rounded-full bg-cyan-300 shadow-[0_0_20px_rgba(34,211,238,0.95)]" style={{ width: `${completion}%` }} /></div>
+                <div className="mt-5 space-y-3">
+                  {active.tasks.map((task) => (
+                    <div key={task} className="flex items-center gap-3 rounded-xl bg-cyan-400/10 p-3">
+                      <CheckCircle2 className="h-5 w-5 text-emerald-300" />
+                      <span className="text-sm text-slate-100">{task}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
 
-            <div className="mt-5 grid grid-cols-2 gap-4 lg:grid-cols-4">
+            <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
               {modules.map((module) => {
                 const Icon = module.icon
                 const selected = active.label === module.label
                 return (
-                  <button key={module.label} onClick={() => setActive(module)} className={`rounded-3xl border p-4 text-left transition hover:-translate-y-1 ${selected ? 'border-cyan-200 bg-cyan-300/20 shadow-[0_0_45px_rgba(34,211,238,0.35)]' : 'border-cyan-300/20 bg-[#08182b] hover:border-cyan-300/70 hover:bg-cyan-300/10'}`}>
-                    <div className="flex items-center justify-between"><Icon className="h-6 w-6 text-cyan-300" /><span className="font-mono text-xl font-black text-emerald-300">{module.value}</span></div>
-                    <p className="mt-4 text-[10px] font-black uppercase tracking-[0.28em] text-cyan-200">{module.label}</p>
-                    <p className="mt-2 text-xs text-slate-300">{module.text}</p>
+                  <button key={module.label} onClick={() => setActive(module)} className={`rounded-2xl border p-4 text-left transition hover:-translate-y-1 ${selected ? 'border-cyan-200 bg-cyan-400/20 shadow-[0_0_35px_rgba(34,211,238,0.3)]' : 'border-cyan-400/25 bg-[#08182b] hover:bg-cyan-400/10'}`}>
+                    <div className="flex items-center justify-between">
+                      <Icon className="h-6 w-6 text-cyan-300" />
+                      <span className="font-mono text-xl font-black text-emerald-300">{module.value}</span>
+                    </div>
+                    <p className="mt-4 text-xs font-black uppercase tracking-[0.25em] text-cyan-200">{module.label}</p>
+                    <p className="mt-2 text-sm text-slate-300">{module.text}</p>
                   </button>
                 )
               })}
             </div>
           </section>
 
-          <aside className="space-y-5">
-            <div className="rounded-[28px] border border-cyan-300/25 bg-slate-950/80 p-5 shadow-lg backdrop-blur-xl">
-              <div className="flex items-center gap-3 rounded-2xl border border-cyan-300/25 bg-cyan-300/10 px-4 py-4">
+          <aside className="space-y-6">
+            <div className="rounded-3xl border border-cyan-400/30 bg-[#101f33] p-6 shadow-xl">
+              <div className="flex items-center gap-3 rounded-2xl border border-cyan-400/30 bg-[#07111f] px-4 py-4">
                 <Search className="h-5 w-5 text-cyan-300" />
-                <input value={command} onChange={(e) => setCommand(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && runCommand(command)} placeholder="Ask JARVIS anything..." className="w-full bg-transparent text-sm text-white placeholder:text-cyan-100/55 outline-none" />
+                <input value={command} onChange={(e) => setCommand(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && runCommand(command)} placeholder="Ask JARVIS anything..." className="w-full bg-transparent text-white placeholder:text-slate-400 outline-none" />
               </div>
-              <button onClick={() => runCommand(command || `Analyze ${active.label}`)} className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-cyan-300 px-4 py-3 font-black text-slate-950 transition hover:bg-emerald-300">
+              <button onClick={() => runCommand(command)} className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-cyan-300 px-4 py-3 font-black text-slate-950 hover:bg-emerald-300">
                 <Play className="h-5 w-5" /> Execute Command
               </button>
             </div>
 
-            <div className="rounded-[28px] border border-cyan-300/25 bg-slate-950/80 p-5 shadow-lg backdrop-blur-xl">
-              <h3 className="mb-4 text-xl font-black">Module Actions</h3>
+            <div className="rounded-3xl border border-cyan-400/30 bg-[#101f33] p-6 shadow-xl">
+              <h3 className="mb-4 text-2xl font-black">Module Actions</h3>
               <div className="grid gap-3">
-                {active.actions.map((action) => (
-                  <button key={action} onClick={() => runCommand(action)} className="rounded-2xl border border-cyan-300/20 bg-cyan-300/10 px-4 py-3 text-left text-sm font-bold text-white transition hover:border-emerald-300/70 hover:bg-emerald-300/15">
+                {['Open module', 'Run analysis', 'Create task', 'Export report'].map((action) => (
+                  <button key={action} onClick={() => runCommand(action)} className="rounded-2xl border border-cyan-400/25 bg-cyan-400/10 px-4 py-3 text-left font-bold hover:bg-emerald-400/15">
                     {action}
                   </button>
                 ))}
               </div>
             </div>
 
-            <div className="rounded-[28px] border border-cyan-300/25 bg-slate-950/80 p-5 shadow-lg backdrop-blur-xl">
-              <div className="mb-4 flex items-center gap-3"><BarChart3 className="h-6 w-6 text-emerald-300" /><h3 className="text-xl font-black">Task Stack</h3></div>
-              <div className="space-y-3">
-                {active.tasks.map((task) => (
-                  <div key={task} className="flex items-center gap-3 rounded-2xl border border-cyan-300/15 bg-cyan-300/5 p-3">
-                    <CheckCircle2 className="h-5 w-5 text-emerald-300" />
-                    <span className="text-sm text-slate-200">{task}</span>
-                  </div>
-                ))}
+            <div className="rounded-3xl border border-cyan-400/30 bg-[#101f33] p-6 shadow-xl">
+              <div className="mb-4 flex items-center gap-3">
+                <Activity className="h-6 w-6 text-emerald-300" />
+                <h3 className="text-2xl font-black">Live Telemetry</h3>
               </div>
+              {[72, 48, 91, 64, 83].map((width, index) => (
+                <div key={index} className="mb-4">
+                  <div className="mb-2 flex justify-between text-sm text-slate-300"><span>Signal {index + 1}</span><span>{width}%</span></div>
+                  <div className="h-3 overflow-hidden rounded-full bg-cyan-400/15"><div className="h-full rounded-full bg-cyan-300" style={{ width: `${width}%` }} /></div>
+                </div>
+              ))}
             </div>
           </aside>
-        </div>
-      </section>
+        </section>
+      </div>
     </main>
   )
 }
