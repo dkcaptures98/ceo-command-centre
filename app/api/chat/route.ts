@@ -2,8 +2,6 @@ import OpenAI from 'openai'
 
 export const runtime = 'nodejs'
 
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
-
 export async function POST(request: Request) {
   try {
     const body = await request.json()
@@ -14,12 +12,16 @@ export async function POST(request: Request) {
       return Response.json({ reply: 'Give me a command or question and I will respond.' })
     }
 
-    if (!process.env.OPENAI_API_KEY) {
+    const apiKey = process.env.OPENAI_API_KEY
+
+    if (!apiKey) {
       return Response.json({
         reply:
           'AI backend is not connected yet. Add OPENAI_API_KEY in Vercel Project Settings → Environment Variables, then redeploy. Until then, this interface can only simulate responses.',
       })
     }
+
+    const client = new OpenAI({ apiKey })
 
     const completion = await client.chat.completions.create({
       model: 'gpt-4o-mini',
@@ -38,7 +40,7 @@ export async function POST(request: Request) {
     })
 
     return Response.json({ reply: completion.choices[0]?.message?.content || 'No response generated.' })
-  } catch (error) {
+  } catch {
     return Response.json(
       { reply: 'AI request failed. Check the Vercel function logs and confirm OPENAI_API_KEY is set correctly.' },
       { status: 500 },
