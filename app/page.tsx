@@ -40,10 +40,15 @@ const diagnostics = [
   { label: 'Security', value: 'Locked', icon: Lock },
 ]
 
+function fakeAiResponse(module: string, command: string) {
+  return `JARVIS response: I processed "${command}" inside the ${module} module. Next step: review the highlighted task stack, then use Export Report or Create Task to continue the workflow.`
+}
+
 export default function HomePage() {
   const [time, setTime] = useState('')
   const [active, setActive] = useState(modules[0])
   const [command, setCommand] = useState('')
+  const [aiResponse, setAiResponse] = useState('Select a module or run a command. Responses will appear here.')
   const [logs, setLogs] = useState(['System loaded', 'Interface visible', 'Modules online', 'Command input ready'])
 
   useEffect(() => {
@@ -53,8 +58,15 @@ export default function HomePage() {
     return () => clearInterval(timer)
   }, [])
 
+  function selectModule(module: typeof modules[number]) {
+    setActive(module)
+    setAiResponse(`JARVIS response: ${module.label} module opened. I found ${module.value} active items. Recommended focus: ${module.tasks[0]}.`)
+    setLogs((current) => [`Opened ${module.label} module`, ...current].slice(0, 8))
+  }
+
   function runCommand(text: string) {
     const clean = text.trim() || `Analyze ${active.label}`
+    setAiResponse(fakeAiResponse(active.label, clean))
     setLogs((current) => [`${active.label}: ${clean}`, 'Command executed successfully', ...current].slice(0, 8))
     setCommand('')
   }
@@ -118,9 +130,14 @@ export default function HomePage() {
                   <Sparkles size={50} />
                   <small>Neural Core</small>
                   <strong>JARVIS</strong>
-                  <span>Awaiting operator command</span>
+                  <span>{active.label} online</span>
                 </div>
               </div>
+            </div>
+
+            <div className="hud-panel ai-output">
+              <div className="section-title"><Sparkles size={22} /><h3>AI Response</h3></div>
+              <p>{aiResponse}</p>
             </div>
 
             <div className="module-dock">
@@ -128,7 +145,7 @@ export default function HomePage() {
                 const Icon = module.icon
                 const selected = active.label === module.label
                 return (
-                  <button key={module.label} onClick={() => setActive(module)} className={`dock-card ${selected ? 'selected' : ''}`}>
+                  <button key={module.label} onClick={() => selectModule(module)} className={`dock-card ${selected ? 'selected' : ''}`}>
                     <div><Icon size={24} /><span>{module.value}</span></div>
                     <strong>{module.label}</strong>
                     <p>{module.text}</p>
@@ -145,7 +162,7 @@ export default function HomePage() {
               <p>{active.text}</p>
               <div className="metric-card"><small>Current Metric</small><strong>{active.value}</strong></div>
               <div className="task-list">
-                {active.tasks.map((task) => <div key={task} className="task-item"><CheckCircle2 size={18} />{task}</div>)}
+                {active.tasks.map((task) => <button key={task} onClick={() => runCommand(`Work on ${task}`)} className="task-item"><CheckCircle2 size={18} />{task}</button>)}
               </div>
             </div>
 
